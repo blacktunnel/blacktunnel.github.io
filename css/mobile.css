@@ -287,26 +287,15 @@ video {
 
 .sprite-demo {
   position: relative;
+  margin-bottom: 2.35765%;
   display: block;
   float: left;
   margin-right: 2.35765%;
-  width: 31.76157%;
-  margin-bottom: 2.35765%; }
+  width: 14.70196%; }
   .sprite-demo:last-child {
     margin-right: 0; }
-  @media screen and (max-width: 40em) {
-    .sprite-demo:nth-child(3n) {
-      margin-right: 0; } }
-  @media screen and (min-width: 40em) {
-    .sprite-demo {
-      display: block;
-      float: left;
-      margin-right: 2.35765%;
-      width: 14.70196%; }
-      .sprite-demo:last-child {
-        margin-right: 0; }
-      .sprite-demo:nth-child(6n) {
-        margin-right: 0; } }
+  .sprite-demo:nth-child(6n) {
+    margin-right: 0; }
   .sprite-demo img {
     display: block; }
 
