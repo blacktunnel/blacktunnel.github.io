@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+  <script src="http://use.edgefonts.net/droid-sans.js"></script>
+  <script src="http://use.edgefonts.net/droid-sans-mono.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>MORPH</title>
+
+  <link rel="stylesheet" href="/css/reset.css">
+  <link rel="stylesheet" href="/css/mobile.css">
+  <link rel="stylesheet" href="/css/desktop.css">
+  <link rel="stylesheet" href="/css/pygments.css">
+  <link rel="stylesheet" href="/css/font.css">
+  <script type="text/javascript" charset="utf-8" src="/js/matchmedia.js"></script>
+  <script type="text/javascript" charset="utf-8" src="/js/picturefill.js"></script>
+</head>
+
+<body>
+<div class="wrapper">
+    <header>
+  <div class="container">
+    <a href="/" class="logo">Blk Tunl</a>
+    <a href="#" class="nav-control">&lt;</a>
+    <br class="clear"><br />
+
+    <nav>
+      <ul>
+        <li><a href="/blog">BLOG</a></li>
+        <!--
+        <li><a href="/morph">MORPH</a></li>
+        <li><a href="/chess">CHESS</a></li>
+        -->
+      </ul>
+    </nav>
+  </div>
+</header>
+
+
+    <section id="main">
+      <div class="container">
+        <article class="post">
+            <div class="post-header">
+                  <p class="date">20130620002732</p>
+                  <h1><a href="/blog/post/time-for-some-new-game-mechanics">Time For Some New Game Mechanics</a></h1>
+            </div>
+            <div class="post-body">
+              <p>Our next step was obvious. Build some more characters and test out the
+game mechanics already in place. That went pretty well. We built a
+spider, and a base class for menus for things like pausing the game, and
+"choosing" which form at each morph machine.</p>
+
+<p>Once the morph menu was working it became glaringly obvious that the
+bulk of the work left on the actual game mechanics revolved around
+Morph's different characters.</p>
+
+<p>So we tackled them all*.</p>
+
+<p>The Boat was easy. We added water and waves to our terrain, made them
+deadly for all entities apart from the boat, and gave the boat the
+ability to move right/left and shoot cannonballs.</p>
+
+<p>The frog was a bit more complicated and still needs a little work. He
+can jump exceptionally high and moves farther on each keystroke while
+he's in the air. This gives him an extraordinary ability of moving
+across a level very quickly. I'm starting to see a lot of possibilities
+of creating a solid puzzle game around just a few of these form/terrain
+combinations.</p>
+
+<p>Next on my list was the airplane. I had been dreading this. The plane is
+the only form of Morph which requires truly different game mechanics. Of
+course, it's not a drastic difference. It turned out the only thing that
+had to change for sky levels as opposed to regular ones was the fact
+that the plane has a constant postive x velocity and the viewport has a constant
+negative x velocity. This gives the side-scrolling illusion we all know
+and love. Morph stays put, everything else moves around him, yet somehow
+we still perceive it as a high-paced, flying adventure.</p>
+
+<p>The jellyfish was a matter of allowing for another entity to collide
+with water safely, giving him a lesser gravitational force, and giving
+him a sort of Mario-like swimming pattern that's more like a underwater
+jump than anything.</p>
+
+<p>The clock needed a ticking animation, a short jump, and of course, the
+ability to stop time. This was a matter of isolating our update calls
+and collision checks to Morph only. Not too shabby.</p>
+
+            </div>
+        </article>
+      </div>
+    </section>
+
+    <footer>
+  <div class="container">
+    &copy; Black Tunnel 2013
+  </div>
+</footer>
+
+</body>
+<script type="text/javascript" charset="utf-8" src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/webpro.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="/js/vmouse.js"></script>
+<script type="text/javascript">
+
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-33073396-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+
+</script>
+<script type="text/javascript" charset="utf-8">
+  var $header = $( 'header' ),
+    $navControl = $( '.nav-control' ),
+    toggleClosed = false;
+  $header.on( 'click', function( evt ) {
+    if ( evt.target.href == '#' ) {
+      evt.preventDefault();
+    }
+    if ( $header.hasClass( 'nav-open' ) ) {
+      toggleClosed = true;
+    }
+    $header.toggleClass( 'nav-open' );
+    if ( toggleClosed ) {
+      $header.toggleClass( 'nav-close' );
+    }
+  });
+  var tg = new WebPro.Widget.TabGroup( '.thumbs .selector', { checkedClass: 'active' } ),
+    pg = new WebPro.Widget.PanelGroup( '.panel', { activeClass: 'active', tabGroups: [ tg ] } );
+
+  $( '.sprite-demo' ).on( 'vclick', function( evt ) {
+    console.log('test');
+    evt.preventDefault();
+    $( '.popup' ).hide();
+    $( this ).find( '.popup' ).show();
+  });
+
+  $( document ).on( 'vclick', function( evt ) {
+    console.log(evt.target);
+    if ( !$( evt.target ).hasClass( 'sprite-demo-img' ) ) {
+      $( '.popup' ).hide();
+    }
+  });
+</script>
+
+</html>

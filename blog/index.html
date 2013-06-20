@@ -47,6 +47,146 @@
   
       <article class="post">
           <div class="post-header">
+                <p class="date">20130604160149</p>
+                <h1><a href="/blog/post/a-level-editor-and-a-little-ai">A Level Editor And A Little A.I.</a></h1>
+          </div>
+          <div class="post-body">
+            <p>After getting the first few characters to show up and move around on the
+screen, we decided it was time to buckle down and come up with a better
+way to create a level from scratch. We had set up our levels to be
+hard-coded into a <code>level.js</code> file. This usually looked like
+<a href="https://github.com/blacktunnel/morph/blob/2084801edbf59c0b446667c6cf0a080c6ff9bbac/game/level.js#L33">this</a>.</p>
+
+<p>We chose it because it's both human and machine readable. When we
+initialize a level we simply parse each string to find the correct class
+to instantiate. We then keep a running collection of entity objects.</p>
+
+<p>This is obviously easy to manipulate by hand, but it's tedious to create a
+brand new level from scratch. So we created a <a href="http://blacktunnel.github.io/preview/editor">level
+editor</a>.</p>
+
+<p>The editor app can initialize an instance of the game at any
+point (for quick testing), so it has access to all classes under the
+<code>Game.Entity</code> namespace. Under this namespace it can create a list of
+possible entities with which it can populate a level's grid. We also
+created a few crude (and buggy) "drawing" tools such as a pencil, an
+eraser, and a rectangle tool for large areas of the same entity.</p>
+
+<p>Within the editor you can also switch to a preview mode which
+instantiates the game with your new level. This really comes in handy
+for testing out quick ideas.</p>
+
+<p>At the end of your editing session, you can click save, and the app will throw
+open a new window with the appropriate Javascript ready to be pasted into our <code>level.js</code>
+file. Pretty cool huh?</p>
+
+<h5>The Bad Guys</h5>
+
+<p>Obviously no platform game is any good without 'em. The few we have designed
+sprites for thus far aren't our favorite and will probably be changed
+many times down the road. But for now, we wanted to create a few tough
+adversaries for Morph. We started with a bird and
+a monster but they didn't have any way of attacking.</p>
+
+<p>So for our first <em>real</em> enemy we created a turret. The first thing to
+nail down were the bullets. This was done easily enough with what our
+little game engine already provided. We drew up a 2x2 red dot, defined a
+new object, and instantiate it next to the turret when it's time to
+fire. The velocity and position vectors take care of the
+flying-across-the-screen-ness of the bullet. A quick modification of
+Morph's collision handler and the bullets actually damage his health.
+Add a time element to the turret's update method, and we have a bullet
+flying horizontally every 2 seconds.</p>
+
+<p>With everything in place this was all actually quite easy. We even
+created a few variations of the turret called "Quick" and "Smart"
+turrets. Quick ones are a little smarter than regular turrets in that
+they only shoot when Morph is on their same x-axis. And, when they do
+fire, Morph gets a barage of fast and repetive fire. Smart turrets can
+track Morph's position (almost) anywhere on screen and hit with a
+similar furry. Time to grab your rocks boys and girls...</p>
+
+<h5>Time for sentient entities</h5>
+
+<p>After all that, we moved back to the monster. He needed to do more than
+just sit there and chomp his teeth, so we dubbed him our goomba and
+decided to put a spring in his step. As we added some logic to get him
+walking, we realized we were going to need to standardize on the way we
+defined our bad guys' behaviors.</p>
+
+<p>We attempted to create something akin to our animationStates called
+"moves". We then realized that an entity's state should ultimately
+dictate both it's A.I. actions and animation sequence. So we combined both animations and actions into a single states dictionary.
+Here's what it looks like:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">Game</span><span class="p">.</span><span class="nx">Entity</span><span class="p">.</span><span class="nx">Enemy</span><span class="p">.</span><span class="nx">Monster</span> <span class="o">=</span> <span class="nx">Game</span><span class="p">.</span><span class="nx">Entity</span><span class="p">.</span><span class="nx">Enemy</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;Enemy.Monster&#39;</span><span class="p">,</span>
+    <span class="nx">states</span><span class="o">:</span> <span class="p">{</span>
+        <span class="s1">&#39;dying&#39;</span><span class="o">:</span> <span class="nx">Game</span><span class="p">.</span><span class="nx">Entity</span><span class="p">.</span><span class="nx">Enemy</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">states</span><span class="p">.</span><span class="nx">dying</span><span class="p">,</span>
+        <span class="s1">&#39;walking&#39;</span><span class="o">:</span> <span class="p">{</span>
+            <span class="nx">animation</span><span class="o">:</span> <span class="p">{</span>
+                <span class="nx">delta</span><span class="o">:</span> <span class="mi">150</span><span class="p">,</span>
+                <span class="nx">sequence</span><span class="o">:</span> <span class="p">[</span> <span class="s1">&#39;monster-open&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-open&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-open&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-open&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-open&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-closing&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-closed&#39;</span><span class="p">,</span> <span class="s1">&#39;monster-closed&#39;</span><span class="p">,</span> <span class="p">],</span>
+                <span class="nx">times</span><span class="o">:</span> <span class="s1">&#39;infinite&#39;</span>
+            <span class="p">},</span>
+            <span class="nx">actions</span><span class="o">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="nx">delta</span><span class="o">:</span> <span class="mi">500</span><span class="p">,</span>
+                    <span class="nx">action</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">pos</span><span class="p">.</span><span class="nx">x</span> <span class="o">-=</span> <span class="nx">Game</span><span class="p">.</span><span class="nx">unit</span><span class="p">;</span> <span class="p">},</span>
+                    <span class="nx">until</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">adjacentTo</span><span class="p">(</span> <span class="s1">&#39;Terrain.Land&#39;</span><span class="p">,</span> <span class="s1">&#39;left&#39;</span> <span class="p">)</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">adjacentToLevelEdge</span><span class="p">(</span> <span class="s1">&#39;left&#39;</span> <span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="nx">delta</span><span class="o">:</span> <span class="mi">500</span><span class="p">,</span>
+                    <span class="nx">action</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">pos</span><span class="p">.</span><span class="nx">x</span> <span class="o">+=</span> <span class="nx">Game</span><span class="p">.</span><span class="nx">unit</span><span class="p">;</span> <span class="p">},</span>
+                    <span class="nx">until</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+                        <span class="k">return</span> <span class="k">this</span><span class="p">.</span><span class="nx">adjacentTo</span><span class="p">(</span> <span class="s1">&#39;Terrain.Land&#39;</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span> <span class="p">)</span> <span class="o">||</span> <span class="k">this</span><span class="p">.</span><span class="nx">adjacentToLevelEdge</span><span class="p">(</span> <span class="s1">&#39;right&#39;</span> <span class="p">);</span>
+                    <span class="p">}</span>
+                <span class="p">}</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="c1">// ...</span>
+<span class="p">});</span>
+</code></pre></div>
+
+
+<p>Our base class has a handler called <code>performNextMove</code> in which
+we check our until case to see if we can perform the current or next
+move. This is executed at an interval set by the move's delta property.</p>
+
+<p>Pretty neat huh? So we went back and tweaked the turret code to follow
+this pattern:</p>
+
+<div class="highlight"><pre><code class="javascript"><span class="nx">states</span><span class="o">:</span> <span class="p">{</span>
+    <span class="s1">&#39;dying&#39;</span><span class="o">:</span> <span class="nx">Game</span><span class="p">.</span><span class="nx">Entity</span><span class="p">.</span><span class="nx">Enemy</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">states</span><span class="p">.</span><span class="nx">dying</span><span class="p">,</span>
+    <span class="s1">&#39;shooting&#39;</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">animation</span><span class="o">:</span> <span class="kc">null</span><span class="p">,</span>
+        <span class="nx">actions</span><span class="o">:</span> <span class="p">[{</span>
+            <span class="nx">delta</span><span class="o">:</span> <span class="nx">TURRET_INTERVAL</span><span class="p">,</span>
+            <span class="nx">action</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="k">this</span><span class="p">.</span><span class="nx">shoot</span><span class="p">();</span> <span class="p">}</span>
+        <span class="p">}]</span>
+    <span class="p">}</span>
+<span class="p">},</span>
+<span class="c1">// ...</span>
+<span class="nx">shoot</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">createBullet</span><span class="p">(</span> <span class="k">this</span><span class="p">.</span><span class="nx">pos</span><span class="p">.</span><span class="nx">x</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">pos</span><span class="p">.</span><span class="nx">y</span><span class="p">,</span> <span class="k">this</span><span class="p">.</span><span class="nx">bulletSpeed</span><span class="p">,</span> <span class="mi">0</span> <span class="p">);</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>We're hoping this pattern is flexible enough to cover more complex
+interactions later on. We'll let you just how wrong we are when we get
+to boss battles.</p>
+
+          </div>
+      </article>
+  
+
+  
+      <article class="post">
+          <div class="post-header">
                 <p class="date">20130408032334</p>
                 <h1><a href="/blog/post/the-game-engine-begins">The Game Engine Begins</a></h1>
           </div>
